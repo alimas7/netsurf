@@ -1,6 +1,6 @@
 name: "Linux Build"
 
-on: [push]
+on: [workflow_dispatch]
 
 jobs:
   # Native linux builds
@@ -129,6 +129,7 @@ jobs:
           - { toolchain: m68k-unknown-amigaos, frontend: amigaos3, pkg-file: NetSurf_Amiga/netsurf.lha }
           - { toolchain: ppc-amigaos,          frontend: amiga,    pkg-file: NetSurf_Amiga/netsurf.lha }
           - { toolchain: x86_64-w64-mingw32,   frontend: windows,  pkg-file: netsurf-installer.exe }
+          - { toolchain: arm-kindle-linux-gnueabi-k3, frontend: framebuffer, pkg-file: framebuffer/netsurf-fb }
 
     steps:
     - name: Checkout repository
@@ -157,6 +158,7 @@ jobs:
                llvm
                nsis
                pkg-config
+               zlib1g-dev
 
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1.2
@@ -168,10 +170,27 @@ jobs:
     - name: Download toolchain
       run: |
         set -e
-        
+
         TOOLCHAIN_NAME="${{ matrix.build.toolchain }}"
+
+        if [ "$TOOLCHAIN_NAME" = "arm-kindle-linux-gnueabi-k3" ]; then
+          echo "Downloading KOReader Kindle toolchain directly..."
+          curl -f -L -o kindle.tar.gz https://github.com/koreader/koxtoolchain/releases/download/2025.05/kindle.tar.gz
+          echo "Creating NetSurf-style toolchain directory for Kindle..."
+          sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3
+          sudo tar -xzf kindle.tar.gz -C /opt/netsurf/arm-kindle-linux-gnueabi-k3 --strip-components=1
+          ls -R /opt/netsurf/arm-kindle-linux-gnueabi-k3 || true
+          echo "Toolchain testament:"
+          cat > /opt/netsurf/arm-kindle-linux-gnueabi-k3/BUILD_INFO.txt <<EOF
+TOOLCHAIN=arm-kindle-linux-gnueabi-k3
+BUILDER=koreader-koxtoolchain
+DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+EOF
+          exit 0
+        fi
+
         BRANCH_NAME="${{ github.ref_name }}"
-        
+
         # Function to try downloading toolchain from a specific tag
         download_toolchain() {
           local ref="$1"
@@ -205,8 +224,13 @@ jobs:
     - name: Install toolchain
       run: |
         echo "Installing toolchain: ${{ matrix.build.toolchain }}"
-        sudo tar -xzf "${{ matrix.build.toolchain }}.tar.gz" -C /
-        rm "${{ matrix.build.toolchain }}.tar.gz"
+        TOOLCHAIN_NAME="${{ matrix.build.toolchain }}"
+
+        if [ "$TOOLCHAIN_NAME" != "arm-kindle-linux-gnueabi-k3" ]; then
+          sudo tar -xzf "${TOOLCHAIN_NAME}.tar.gz" -C /
+          rm "${TOOLCHAIN_NAME}.tar.gz"
+        fi
+
         echo "Toolchain testament:"
         cat /opt/netsurf/${{ matrix.build.toolchain }}/BUILD_INFO.txt
 
