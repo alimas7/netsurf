@@ -346,7 +346,8 @@ jobs:
       if: always()
       run: |
         find / -type f 2>&1 | xz -9c > files.lst.xz
-        tar -czf runner-workspace.tar.gz --exclude=runner-workspace.tar.gz /home/runner/work/netsurf/netsurf/projects/libdom
+        # tar -czf runner-workspace.tar.gz --exclude=runner-workspace.tar.gz /home/runner/work/netsurf/netsurf/projects/libdom
+        tar -czf runner-workspace.tar.gz --exclude=runner-workspace.tar.gz /home/runner
 
     - name: 13. Upload Artifacts
       if: always()
