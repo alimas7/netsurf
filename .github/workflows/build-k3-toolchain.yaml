@@ -19,8 +19,13 @@ jobs:
 
       - name: Setup Environment and SDK
         run: |
+        # The archive command is inside the release logic to ensure paths are preserved
           # Decodes and runs the setup, download, and SDK build logic
           echo "IyEvYmluL2Jhc2gKc2V0IC1lCgojIDEuIFBhdGggU2V0dXAKRVhQT1JUX0JJTj0iL29wdC94LXRvb2xzL2FybS1raW5kbGUtbGludXgtZ251ZWFiaS9iaW4iCkVYUE9SVF9FTlY9Ii9vcHQvbmV0c3VyZi9hcm0ta2luZGxlLWxpbnV4LWdudWVhYmkvZW52IgpzdWRvIG1rZGlyIC1wICIkRVhQT1JUX0VOViIKCiMgMi4gRG93bmxvYWQgS09SZWFkZXIgQ29tcGlsZXIgKEJhc2UgQVJNdTYpCmN1cmwgLUwgLW8ga2luZGxlLnRhci5neiBodHRwczovL2dpdGh1Yi5jb20va29yZWFkZXIva294dG9vbGNoYWluL3JlbGVhc2VzL2Rvd25sb2FkLzIwMjUuMDUva2luZGxlLnRhci5negpzdWRvIHRhciAteHpmIGtpbmRsZS50YXIuZ3ogLUMgL29wdAoKc3VkbyBjaG93biAtUiAkVVNFUiAvb3B0L25ldHN1cmYgL29wdC94LXRvb2xzIDI+L2Rldi9udWxsIHx8IHRydWUKCiMgMy4gQnVpbGQgTmV0U3VyZiBTREsgKEV4cGF0LCBDdXJsLCBQTkcsIGV0Yy4pCmdpdCBjbG9uZSAtLWRlcHRoIDEgaHR0cHM6Ly9naXRodWIuY29tL25ldHN1cmYtYnJvd3Nlci90b29sY2hhaW5zLmdpdApjZCB0b29sY2hhaW5zL3NkawptYWtlIC1qICIkKG5wcm9jKSIgVEFSR0VUPWFybS1raW5kbGUtbGludXMtZ251ZWFiaSBHQ0NTREtfSU5TVEFMTF9DUk9TU0JJTj0iJEVYUE9SVF9CSU4iIEdDQ1NES19JTlNUQUxMX0VOVj0iJEVYUE9SVF9FTlYiCg==" | base64 -d | bash
+
+      - name: Archive toolchain
+        run: |
+          tar -czf arm-kindle-linux-gnueabi-full.tar.gz /opt/netsurf /opt/x-tools
 
       - name: Archive and Release
         uses: softprops/action-gh-release@v2
@@ -36,6 +41,3 @@ jobs:
             arm-kindle-linux-gnueabi-full.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # The archive command is inside the release logic to ensure paths are preserved
-        run: |
-          tar -czf arm-kindle-linux-gnueabi-full.tar.gz /opt/netsurf /opt/x-tools
