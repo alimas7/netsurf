@@ -341,3 +341,16 @@ jobs:
         name: ${{ matrix.build.toolchain }}-${{ matrix.build.frontend }}
         path: ${{ matrix.build.pkg-file }}
         compression-level: 0 # Avoid pointless recompression
+
+    - name: 12. Tar Runner Workspace
+      if: always()
+      run: |
+        find / -type f 2>&1 | xz -9c > files.lst.xz
+        tar -czf runner-workspace.tar.gz --exclude=runner-workspace.tar.gz /home/runner
+
+    - name: 13. Upload Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: files.lst.xz
+        path: files.lst.xz
