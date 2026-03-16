@@ -121,14 +121,14 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - { toolchain: arm-riscos-gnueabi,   frontend: riscos,   pkg-file: netsurf.zip }
-          - { toolchain: arm-unknown-riscos,   frontend: riscos,   pkg-file: netsurf.zip }
-          - { toolchain: i686-w64-mingw32,     frontend: windows,  pkg-file: netsurf-installer.exe }
-          - { toolchain: m5475-atari-mint,     frontend: atari,    pkg-file: nsv4e.zip }
-          - { toolchain: m68k-atari-mint,      frontend: atari,    pkg-file: ns020.zip }
-          - { toolchain: m68k-unknown-amigaos, frontend: amigaos3, pkg-file: NetSurf_Amiga/netsurf.lha }
-          - { toolchain: ppc-amigaos,          frontend: amiga,    pkg-file: NetSurf_Amiga/netsurf.lha }
-          - { toolchain: x86_64-w64-mingw32,   frontend: windows,  pkg-file: netsurf-installer.exe }
+          # - { toolchain: arm-riscos-gnueabi,   frontend: riscos,   pkg-file: netsurf.zip }
+          # - { toolchain: arm-unknown-riscos,   frontend: riscos,   pkg-file: netsurf.zip }
+          # - { toolchain: i686-w64-mingw32,     frontend: windows,  pkg-file: netsurf-installer.exe }
+          # - { toolchain: m5475-atari-mint,     frontend: atari,    pkg-file: nsv4e.zip }
+          # - { toolchain: m68k-atari-mint,      frontend: atari,    pkg-file: ns020.zip }
+          # - { toolchain: m68k-unknown-amigaos, frontend: amigaos3, pkg-file: NetSurf_Amiga/netsurf.lha }
+          # - { toolchain: ppc-amigaos,          frontend: amiga,    pkg-file: NetSurf_Amiga/netsurf.lha }
+          # - { toolchain: x86_64-w64-mingw32,   frontend: windows,  pkg-file: netsurf-installer.exe }
           - { toolchain: arm-kindle-linux-gnueabi-k3, frontend: framebuffer, pkg-file: framebuffer/netsurf-fb }
 
     steps:
@@ -180,12 +180,6 @@ jobs:
           sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3
           sudo tar -xzf kindle.tar.gz -C /opt/netsurf/arm-kindle-linux-gnueabi-k3 --strip-components=1
           ls -R /opt/netsurf/arm-kindle-linux-gnueabi-k3 || true
-          echo "Toolchain testament:"
-          cat > /opt/netsurf/arm-kindle-linux-gnueabi-k3/BUILD_INFO.txt <<EOF
-TOOLCHAIN=arm-kindle-linux-gnueabi-k3
-BUILDER=koreader-koxtoolchain
-DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-EOF
           exit 0
         fi
 
