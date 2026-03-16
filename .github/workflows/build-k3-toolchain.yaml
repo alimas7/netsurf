@@ -1,0 +1,41 @@
+name: "Release Kindle 3 NetSurf Toolchain"
+
+on: 
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            bison build-essential flex git gperf pkg-config \
+            libhtml-parser-perl libexpat1-dev curl tar bzip2
+
+      - name: Setup Environment and SDK
+        run: |
+          # Decodes and runs the setup, download, and SDK build logic
+          echo "IyEvYmluL2Jhc2gKc2V0IC1lCgojIDEuIFBhdGggU2V0dXAKRVhQT1JUX0JJTj0iL29wdC94LXRvb2xzL2FybS1raW5kbGUtbGludXgtZ251ZWFiaS9iaW4iCkVYUE9SVF9FTlY9Ii9vcHQvbmV0c3VyZi9hcm0ta2luZGxlLWxpbnV4LWdudWVhYmkvZW52IgpzdWRvIG1rZGlyIC1wICIkRVhQT1JUX0VOViIKc3VkbyBjaG93biAtUiAkVVNFUiAvb3B0L25ldHN1cmYgL29wdC94LXRvb2xzIDI+L2Rldi9udWxsIHx8IHRydWUKCiMgMi4gRG93bmxvYWQgS09SZWFkZXIgQ29tcGlsZXIgKEJhc2UgQVJNdTYpCmN1cmwgLUwgLW8ga2luZGxlLnRhci5neiBodHRwczovL2dpdGh1Yi5jb20va29yZWFkZXIva294dG9vbGNoYWluL3JlbGVhc2VzL2Rvd25sb2FkLzIwMjQuMDEva2luZGxlLnRhci5negpzdWRvIHRhciAteHpmIGtpbmRsZS50YXIuZ3ogLUMgL29wdAoKIyAzLiBCdWlsZCBOZXRTdXJmIFNESyAoRXhwYXQsIEN1cmwsIFBORywgZXRjLikKZ2l0IGNsb25lIC0tZGVwdGggMSBodHRwczovL2dpdGh1Yi5jb20vbmV0c3VyZi1icm93c2VyL3Rvb2xjaGFpbnMuZ2l0CmNkIHRvb2xjaGFpbnMvc2RrCm1ha2UgLWogIiQobnByb2MpIiBUQVJHRVQ9YXJtLWtpbmRsZS1saW51cy1nbnVlYWJpIFwKICAgIEdDQ1NES19JTlNUQUxMX0NST1NTQklOPSIkRVhQT1JUX0JJTiIgXAogICAgR0NDU0RLX0lOU1RBTExfRU5WPSIkRVhQT1JUX0VOViIK" | base64 -d | bash
+
+      - name: Archive and Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: k3-toolchain-${{ github.run_number }}
+          name: "Kindle 3 NetSurf Toolchain v${{ github.run_number }}"
+          body: |
+            ### Kindle 3 (ARMv6) Toolchain
+            - **Compiler**: KOReader (GCC 13+)
+            - **SDK**: NetSurf Static Libraries (Expat, Curl, OpenSSL, PNG, etc.)
+            - **Target Path**: `/opt/netsurf/arm-kindle-linux-gnueabi/env`
+          files: |
+            arm-kindle-linux-gnueabi-full.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # The archive command is inside the release logic to ensure paths are preserved
+        run: |
+          tar -czf arm-kindle-linux-gnueabi-full.tar.gz /opt/netsurf /opt/x-tools
