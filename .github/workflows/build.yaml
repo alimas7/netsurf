@@ -176,11 +176,11 @@ jobs:
         if [ "$TOOLCHAIN_NAME" = "arm-kindle-linux-gnueabi-k3" ]; then
           echo "Downloading KOReader Kindle toolchain directly..."
           curl -f -L -o kindle.tar.gz https://github.com/koreader/koxtoolchain/releases/download/2025.05/kindle.tar.gz
-          
+
           # Extract to expected NetSurf location
           sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3
           sudo tar -xzf kindle.tar.gz -C /opt
-          
+
           # Create symlinks to match NetSurf's expected cross/bin/${HOST}-gcc path
           sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin
           sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-gcc /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-gcc
@@ -188,7 +188,10 @@ jobs:
           sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-ar /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ar
           sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-ranlib /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ranlib
           sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-pkg-config /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-pkg-config
-          
+
+          # Create BUILD_INFO.txt for NetSurf's "Toolchain testament" step
+          echo -e "TOOLCHAIN=arm-kindle-linux-gnueabi-k3\nBUILDER=koreader-koxtoolchain\nDATE=2026-03-16" > /opt/netsurf/arm-kindle-linux-gnueabi-k3/BUILD_INFO.txt
+
           echo "Toolchain symlinks created:"
           ls -la /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/
           exit 0
