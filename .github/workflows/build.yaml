@@ -149,12 +149,14 @@ jobs:
                git
                gperf
                jlha-utils
+               libexpat1-dev
                libcurl4-openssl-dev
                libgtk-3-dev
                libhtml-parser-perl
                libjpeg-dev
                libpng-dev
                librsvg2-dev
+               libssl-dev
                llvm
                nsis
                pkg-config
@@ -176,18 +178,18 @@ jobs:
         if [ "$TOOLCHAIN_NAME" = "arm-kindle-linux-gnueabi" ]; then
           echo "Downloading KOReader Kindle toolchain directly..."
           curl -f -L -o kindle.tar.gz https://github.com/koreader/koxtoolchain/releases/download/2025.05/kindle.tar.gz
-          
+
           # Extract normally (no --strip-components)
           sudo tar -xzf kindle.tar.gz -C /opt
-          
+
           # Verify actual KOReader layout first
           echo "KOReader toolchain contents:"
           find /opt/kindle -name "*gcc*" -type f 2>/dev/null || echo "No gcc found"
           ls -la /opt/kindle/bin/ 2>/dev/null || echo "No /opt/kindle/bin/"
-          
+
           # Create NetSurf-expected structure with correct symlinks
           sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin
-          
+
           # Symlink from ACTUAL KOReader paths (adjust based on find output above)
           if [ -f "/opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-gcc" ]; then
             sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-gcc /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/arm-kindle-linux-gnueabi-gcc
@@ -202,7 +204,7 @@ jobs:
 
           # Create BUILD_INFO.txt for NetSurf's "Toolchain testament" step
           echo -e "TOOLCHAIN=arm-kindle-linux-gnueabi\nBUILDER=koreader-koxtoolchain\nDATE=2026-03-16" > /opt/netsurf/arm-kindle-linux-gnueabi/BUILD_INFO.txt
-          
+
           echo "NetSurf symlinks:"
           ls -la /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/
           /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/arm-kindle-linux-gnueabi-gcc --version || echo "GCC version check failed"
