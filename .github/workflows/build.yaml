@@ -180,6 +180,9 @@ jobs:
           sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3
           sudo tar -xzf kindle.tar.gz -C /opt/netsurf/arm-kindle-linux-gnueabi-k3 --strip-components=1
           ls -R /opt/netsurf/arm-kindle-linux-gnueabi-k3 || true
+
+          # Create BUILD_INFO.txt for NetSurf's "Toolchain testament" step
+          echo -e "TOOLCHAIN=arm-kindle-linux-gnueabi-k3\nBUILDER=koreader-koxtoolchain\nDATE=2026-03-16" > /opt/netsurf/arm-kindle-linux-gnueabi-k3/BUILD_INFO.txt
           exit 0
         fi
 
@@ -189,10 +192,10 @@ jobs:
         download_toolchain() {
           local ref="$1"
           local download_url="https://github.com/netsurf-browser/toolchains/releases/download/${ref}/${TOOLCHAIN_NAME}.tar.gz"
-          
+
           echo "Trying to download toolchain from ref: $ref"
           echo "URL: $download_url"
-          
+
           if curl -f -L -o "${TOOLCHAIN_NAME}.tar.gz" "$download_url"; then
             echo "Got toolchain with ref: $ref"
             return 0
@@ -201,11 +204,11 @@ jobs:
             return 1
           fi
         }
-        
+
         # Try branch-specific toolchain first
         safe_branch=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9._-]/-/g')
         branch_tag="gh-${safe_branch}-unstable"
-        
+
         if download_toolchain "$branch_tag"; then
           echo "Downloaded branch-specific toolchain"
         elif download_toolchain "gh-master-unstable"; then
@@ -237,7 +240,7 @@ jobs:
       run: |
         echo "HOST=$HOST"
         echo "TARGET_WORKSPACE=$TARGET_WORKSPACE"
-        
+
         echo "Looking for cross-compiler tools..."
         echo "Expected path: /opt/netsurf/${HOST}/cross/bin/"
         if [ -f "/opt/netsurf/${HOST}/cross/bin/${HOST}-gcc" ]; then
@@ -249,7 +252,7 @@ jobs:
         else
           echo "NOT FOUND: /opt/netsurf/${HOST}/cross/bin/${HOST}-gcc"
         fi
-        
+
         echo "Sourcing env.sh with error checking..."
         set -e  # Exit on any error
         if ! source docs/env.sh; then
