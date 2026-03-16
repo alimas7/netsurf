@@ -176,24 +176,36 @@ jobs:
         if [ "$TOOLCHAIN_NAME" = "arm-kindle-linux-gnueabi-k3" ]; then
           echo "Downloading KOReader Kindle toolchain directly..."
           curl -f -L -o kindle.tar.gz https://github.com/koreader/koxtoolchain/releases/download/2025.05/kindle.tar.gz
-
-          # Extract to expected NetSurf location
-          sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3
+          
+          # Extract normally (no --strip-components)
           sudo tar -xzf kindle.tar.gz -C /opt
-
-          # Create symlinks to match NetSurf's expected cross/bin/${HOST}-gcc path
+          
+          # Verify actual KOReader layout first
+          echo "KOReader toolchain contents:"
+          find /opt/kindle -name "*gcc*" -type f 2>/dev/null || echo "No gcc found"
+          ls -la /opt/kindle/bin/ 2>/dev/null || echo "No /opt/kindle/bin/"
+          
+          # Create NetSurf-expected structure with correct symlinks
           sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin
-          sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-gcc /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-gcc
-          sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-g++ /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-g++
-          sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-ar /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ar
-          sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-ranlib /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ranlib
-          sudo ln -sf /opt/kindle/bin/arm-kindle-linux-gnueabi-pkg-config /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-pkg-config
+          
+          # Symlink from ACTUAL KOReader paths (adjust based on find output above)
+          if [ -f "/opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-gcc" ]; then
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-gcc /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-gcc
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-g++ /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-g++
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-ar /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ar
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-ranlib /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ranlib
+          else
+            echo "ERROR: Cannot find KOReader compiler - check extraction"
+            find /opt -name "*gcc*" 2>/dev/null || true
+            exit 1
+          fi
 
           # Create BUILD_INFO.txt for NetSurf's "Toolchain testament" step
           echo -e "TOOLCHAIN=arm-kindle-linux-gnueabi-k3\nBUILDER=koreader-koxtoolchain\nDATE=2026-03-16" > /opt/netsurf/arm-kindle-linux-gnueabi-k3/BUILD_INFO.txt
-
-          echo "Toolchain symlinks created:"
+          
+          echo "NetSurf symlinks:"
           ls -la /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/
+          /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-gcc --version || echo "GCC version check failed"
           exit 0
         fi
 
