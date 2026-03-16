@@ -129,7 +129,7 @@ jobs:
           # - { toolchain: m68k-unknown-amigaos, frontend: amigaos3, pkg-file: NetSurf_Amiga/netsurf.lha }
           # - { toolchain: ppc-amigaos,          frontend: amiga,    pkg-file: NetSurf_Amiga/netsurf.lha }
           # - { toolchain: x86_64-w64-mingw32,   frontend: windows,  pkg-file: netsurf-installer.exe }
-          - { toolchain: arm-kindle-linux-gnueabi-k3, frontend: framebuffer, pkg-file: framebuffer/netsurf-fb }
+          - { toolchain: arm-kindle-linux-gnueabi, frontend: framebuffer, pkg-file: framebuffer/netsurf-fb }
 
     steps:
     - name: Checkout repository
@@ -173,7 +173,7 @@ jobs:
 
         TOOLCHAIN_NAME="${{ matrix.build.toolchain }}"
 
-        if [ "$TOOLCHAIN_NAME" = "arm-kindle-linux-gnueabi-k3" ]; then
+        if [ "$TOOLCHAIN_NAME" = "arm-kindle-linux-gnueabi" ]; then
           echo "Downloading KOReader Kindle toolchain directly..."
           curl -f -L -o kindle.tar.gz https://github.com/koreader/koxtoolchain/releases/download/2025.05/kindle.tar.gz
           
@@ -186,14 +186,14 @@ jobs:
           ls -la /opt/kindle/bin/ 2>/dev/null || echo "No /opt/kindle/bin/"
           
           # Create NetSurf-expected structure with correct symlinks
-          sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin
+          sudo mkdir -p /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin
           
           # Symlink from ACTUAL KOReader paths (adjust based on find output above)
           if [ -f "/opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-gcc" ]; then
-            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-gcc /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-gcc
-            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-g++ /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-g++
-            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-ar /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ar
-            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-ranlib /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-ranlib
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-gcc /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/arm-kindle-linux-gnueabi-gcc
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-g++ /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/arm-kindle-linux-gnueabi-g++
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-ar /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/arm-kindle-linux-gnueabi-ar
+            sudo ln -sf /opt/x-tools/arm-kindle-linux-gnueabi/bin/arm-kindle-linux-gnueabi-ranlib /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/arm-kindle-linux-gnueabi-ranlib
           else
             echo "ERROR: Cannot find KOReader compiler - check extraction"
             find /opt -name "*gcc*" 2>/dev/null || true
@@ -201,11 +201,11 @@ jobs:
           fi
 
           # Create BUILD_INFO.txt for NetSurf's "Toolchain testament" step
-          echo -e "TOOLCHAIN=arm-kindle-linux-gnueabi-k3\nBUILDER=koreader-koxtoolchain\nDATE=2026-03-16" > /opt/netsurf/arm-kindle-linux-gnueabi-k3/BUILD_INFO.txt
+          echo -e "TOOLCHAIN=arm-kindle-linux-gnueabi\nBUILDER=koreader-koxtoolchain\nDATE=2026-03-16" > /opt/netsurf/arm-kindle-linux-gnueabi/BUILD_INFO.txt
           
           echo "NetSurf symlinks:"
-          ls -la /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/
-          /opt/netsurf/arm-kindle-linux-gnueabi-k3/cross/bin/arm-kindle-linux-gnueabi-k3-gcc --version || echo "GCC version check failed"
+          ls -la /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/
+          /opt/netsurf/arm-kindle-linux-gnueabi/cross/bin/arm-kindle-linux-gnueabi-gcc --version || echo "GCC version check failed"
           exit 0
         fi
 
@@ -246,7 +246,7 @@ jobs:
         echo "Installing toolchain: ${{ matrix.build.toolchain }}"
         TOOLCHAIN_NAME="${{ matrix.build.toolchain }}"
 
-        if [ "$TOOLCHAIN_NAME" != "arm-kindle-linux-gnueabi-k3" ]; then
+        if [ "$TOOLCHAIN_NAME" != "arm-kindle-linux-gnueabi" ]; then
           sudo tar -xzf "${TOOLCHAIN_NAME}.tar.gz" -C /
           rm "${TOOLCHAIN_NAME}.tar.gz"
         fi
